@@ -6,9 +6,8 @@ from routers.res_users.controllers.get_all_users_controller import UserAllContro
 
 router = APIRouter(prefix="/user")
 
-# =============== GET -> Create products ===============
 @router.get("/")
-def get_products():
+def test():
     return jsonable_encoder({"rpta", "Usuarios"})
 
 
