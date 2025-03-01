@@ -11,5 +11,5 @@ DB_NAME = os.getenv('DB_NAME', '')
 DB_HOST = os.getenv('DB_HOST', 'localhost')
 
 # jwt configuration
-JWT_SECRET = os.getenv('JWT_SECRET', '')
-JWT_EXPIRES_IN = int(os.getenv('JWT_EXPIRES_IN', 1))
+# JWT_SECRET = os.getenv('JWT_SECRET', '')
+# JWT_EXPIRES_IN = int(os.getenv('JWT_EXPIRES_IN', 1))

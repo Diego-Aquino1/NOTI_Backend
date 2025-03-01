@@ -1,13 +1,13 @@
 from operator import or_
 from sqlmodel import Session, select, func
 
-from models.product import Product
+from models.res_users import ResUser
 
-class ProductQuery:
+class UserQuery:
     def __init__(self, session: Session):
         self.db = session
 
     def find_all(self):
-        query = select(Product)
+        query = select(ResUser)
 
         return self.db.exec(query).all()
