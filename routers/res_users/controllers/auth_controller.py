@@ -23,6 +23,7 @@ BLACKLIST_TOKENS = set()
 class RegisterRequest(BaseModel):
     email: str
     pwd: str
+    name: str
 
 class LoginRequest(BaseModel):
     email: str
@@ -37,9 +38,9 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 # Función para generar JWT
-def create_jwt(email: str):
+def create_jwt(email: str, name: str):
     expiration = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-    payload = {"sub": email, "exp": expiration}
+    payload = {"sub": email, "name": name, "exp": expiration}
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 # Función para decodificar JWT
@@ -64,7 +65,7 @@ def register(data: RegisterRequest):
         raise HTTPException(status_code=400, detail="Usuario ya registrado")
 
     # Crear nuevo usuario
-    new_user = ResUser(email=data.email, password=hash_password(data.pwd))
+    new_user = ResUser(email=data.email, password=hash_password(data.pwd), name=data.name)
     session.add(new_user)
     session.commit()
 
@@ -82,8 +83,8 @@ def login(data: LoginRequest):
         raise HTTPException(status_code=401, detail="Credenciales incorrectas")
     
     # Crear JWT
-    token = create_jwt(data.email)
-    return {"email": data.email, "jwt": token, "data": "Logeado correctamente"}
+    token = create_jwt(data.email, user.name)
+    return {"email": data.email, "name": user.name, "jwt": token, "data": "Logeado correctamente"}
 
 #Cierre de sesión
 @router.post("/logout")
