@@ -1,11 +1,11 @@
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Request
 
-from routers.products import api_products
+from routers.res_users import api_res_users
 
 app = FastAPI()
 
-app.include_router(api_products.router)
+app.include_router(api_res_users.router)
 
 origins = ['*']
 
