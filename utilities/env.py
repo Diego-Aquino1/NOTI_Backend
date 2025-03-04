@@ -11,8 +11,8 @@ print('Loading environment variables...')
 #DB_HOST = os.getenv('DB_HOST', 'localhost')
 
 DB_USER = "postgres"
-DB_PASSWORD = "futbol200,"
-DB_NAME = "angel"
+DB_PASSWORD = "root"
+DB_NAME = "noti00"
 DB_HOST = "localhost"
 
 # jwt configuration

@@ -65,7 +65,7 @@ def register(data: RegisterRequest):
         raise HTTPException(status_code=400, detail="Usuario ya registrado")
 
     # Crear nuevo usuario
-    new_user = ResUser(email=data.email, password=hash_password(data.pwd), name=data.name)
+    new_user = ResUser(email=data.email, pwd_hash=hash_password(data.pwd))
     session.add(new_user)
     session.commit()
 
@@ -79,12 +79,12 @@ def login(data: LoginRequest):
 
     # Buscar usuario en la base de datos
     user = query.find_by_email(data.email)
-    if not user or not verify_password(data.pwd, user.password):
+    if not user or not verify_password(data.pwd, user.pwd_hash):
         raise HTTPException(status_code=401, detail="Credenciales incorrectas")
     
     # Crear JWT
-    token = create_jwt(data.email, user.name)
-    return {"email": data.email, "name": user.name, "jwt": token, "data": "Logeado correctamente"}
+    token = create_jwt(data.email, data.email)
+    return {"email": data.email, "jwt": token, "data": "Logeado correctamente"}
 
 #Cierre de sesión
 @router.post("/logout")
