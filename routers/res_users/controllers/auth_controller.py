@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from passlib.context import CryptContext
@@ -6,6 +7,7 @@ import datetime
 from database import get_session  # Importa la sesión de base de datos
 from routers.res_users.queries.user_queries import UserQuery
 from models.res_users import ResUser  # Modelo de usuario
+from models.res_profiles import ResProfile
 
 router = APIRouter()
 
@@ -24,10 +26,16 @@ class RegisterRequest(BaseModel):
     email: str
     pwd: str
     name: str
+    phone: Optional[str]
+    address: Optional[str]
+    city: Optional[str]
+    country: Optional[str]
+
 
 class LoginRequest(BaseModel):
     email: str
     pwd: str
+    name: str
 
 # Función para hashear contraseña
 def hash_password(password: str):
@@ -62,11 +70,23 @@ def register(data: RegisterRequest):
     # Verificar si el usuario ya existe
     existing_user = query.find_by_email(data.email)
     if existing_user:
-        raise HTTPException(status_code=400, detail="Usuario ya registrado")
+        raise HTTPException(status_code = 400, detail="Usuario ya registrado")
 
     # Crear nuevo usuario
-    new_user = ResUser(email=data.email, pwd_hash=hash_password(data.pwd))
+    new_user = ResUser(email = data.email, pwd_hash = hash_password(data.pwd))
     session.add(new_user)
+    #session.commit()
+    session.flush()
+
+    new_profile = ResProfile(
+        user_id = new_user.id, 
+        name = data.name,  
+        phone = data.phone,
+        address = data.address,
+        city = data.city,
+        country = data.country,
+    )
+    session.add(new_profile)
     session.commit()
 
     return {"message": "Usuario registrado exitosamente"}
@@ -80,10 +100,10 @@ def login(data: LoginRequest):
     # Buscar usuario en la base de datos
     user = query.find_by_email(data.email)
     if not user or not verify_password(data.pwd, user.pwd_hash):
-        raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+        raise HTTPException(status_code = 401, detail="Credenciales incorrectas")
     
     # Crear JWT
-    token = create_jwt(data.email, data.email)
+    token = create_jwt(data.email, data.name)
     return {"email": data.email, "jwt": token, "data": "Logeado correctamente"}
 
 #Cierre de sesión
