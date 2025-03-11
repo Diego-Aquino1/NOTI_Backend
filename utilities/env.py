@@ -10,11 +10,7 @@ DB_PASSWORD = os.getenv('DB_PASSWORD', '')
 DB_NAME = os.getenv('DB_NAME', '')
 DB_HOST = os.getenv('DB_HOST', 'localhost')
 
-#DB_USER = "postgres"
-#DB_PASSWORD = "root"
-#DB_NAME = "noti00"
-#DB_HOST = "localhost"
-
 # jwt configuration
-# JWT_SECRET = os.getenv('JWT_SECRET', '')
-# JWT_EXPIRES_IN = int(os.getenv('JWT_EXPIRES_IN', 1))
+SECRET_KEY = os.getenv('JWT_SECRET', '')
+ALGORITHM = os.getenv('ALGORITHM', '')
+JWT_EXPIRES_IN = int(os.getenv('JWT_EXPIRES_IN', 1))

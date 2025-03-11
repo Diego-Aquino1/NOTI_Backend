@@ -10,7 +10,5 @@ class UserAllController:
 
     # def run(self, auth: ApiAuth):
     def run(self):
-
         users = self.query.find_all()
-
         return users

@@ -13,4 +13,4 @@ class UserQuery:
     
     def find_by_email(self, email: str):
         query = select(ResUser).where(ResUser.email == email)
-        return self.db.exec(query).first()  # Retorna el usuario encontrado
+        return self.db.exec(query).first()
