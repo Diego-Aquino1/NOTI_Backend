@@ -11,6 +11,6 @@ class UserMutations:
 
         user = self.db.add(new_user)
         #session.commit()
-        self.db.flush()
+        self.db.commit()
 
         return user

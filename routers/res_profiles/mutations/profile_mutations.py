@@ -11,6 +11,6 @@ class ProfileMutations:
 
         user = self.db.add(new_profile)
         #session.commit()
-        self.db.flush()
+        self.db.commit()
 
         return user
