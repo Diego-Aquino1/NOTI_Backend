@@ -1,11 +1,13 @@
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Request
 
+from routers.geo_location import api_geo_location
 from routers.res_users import api_res_users
 
 app = FastAPI()
 
 app.include_router(api_res_users.router)
+app.include_router(api_geo_location.router)
 
 origins = ['*']
 
