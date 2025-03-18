@@ -22,4 +22,4 @@ class LoginController:
         
         token = create_jwt(data.email, name)
 
-        return {"email": data.email, "jwt": token, "response": "Logeado correctamente"}
+        return {"email": data.email, "name": name, "jwt": token, "response": "Logeado correctamente"}
