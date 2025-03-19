@@ -13,3 +13,6 @@ class GeoLocation(SQLModel, table=True):
     city: Optional[str] = Field(default=None, max_length=100)
     address: Optional[str] = Field(default=None, max_length=180)
     created_at: datetime = Field(default_factory=datetime.now)
+    country: Optional[str] = Field(default = None, max_length = 100)
+    postal_code: Optional[str] = Field(default = None, max_length = 100)
+
