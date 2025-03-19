@@ -23,7 +23,7 @@ def verify_password(plain_password, hashed_password):
 def create_jwt(email: str, name: str):
     expiration = datetime.utcnow() + timedelta(hours=1)
     payload = {"sub": email, "name": name, "exp": expiration}
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(payload, SECRET_KEY, algorithm = ALGORITHM)
 
 # Función para decodificar JWT
 def decode_jwt(token: str):
