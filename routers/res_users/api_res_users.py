@@ -4,6 +4,8 @@ from routers.res_users.controllers.get_all_users_controller import UserAllContro
 from routers.res_users.controllers.login_controller import LoginController
 from routers.res_users.controllers.register_controller import RegisterController
 from routers.res_users.schemas.auth_schemas import LoginRequest, RegisterRequest
+from routers.res_users.controllers.google_auth_controller import GoogleAuthController, GoogleAuthRequest # Nuevo controlador
+
 from utilities.auth import BLACKLIST_TOKENS
 
 router = APIRouter(prefix="/user")
@@ -39,3 +41,9 @@ def get_roles():
     # return jsonable_encoder(controller.run(auth))
     #return jsonable_encoder(controller.run())
     return controller.run()
+
+# 🔹 Nuevo: Inicio de sesión con Google
+@router.post("/auth/google", status_code=200)
+def google_login(data: GoogleAuthRequest):
+    controller = GoogleAuthController()
+    return jsonable_encoder(controller.run(data))

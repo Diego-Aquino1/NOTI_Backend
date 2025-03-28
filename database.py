@@ -5,6 +5,8 @@ url = f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}'
 print(f'Connecting to {url}')
 engine = create_engine(url)
 
+SessionLocal = Session(engine)
+
 def getEngine():
     return engine
 
