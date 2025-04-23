@@ -1,4 +1,4 @@
-from models.inc_incidents import CorteEnergia  # Asegúrate que el path sea correcto
+from models.inc_incidents import IncIncident  # Asegúrate que el path sea correcto
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 import requests
@@ -42,7 +42,7 @@ def extraer_distrito_y_urbanizaciones(descripcion):
     """Extrae el distrito y las urbanizaciones/manzanas de la descripción."""
     zonas = re.search(r"Zonas afectadas: (.+?)(?:\. Subestaciones|\.$)", descripcion, re.DOTALL)
     if not zonas:
-        print(f"No se encontró 'Zonas afectadas' en: {descripcion}")
+        #print(f"No se encontró 'Zonas afectadas' en: {descripcion}")
         return []
     
     texto_zonas = zonas.group(1).replace('\r\n', ' ').strip()
@@ -86,7 +86,7 @@ def extraer_distrito_y_urbanizaciones(descripcion):
                 # Evitar falsos positivos como "Subestaciones"
                 if not any(x in distrito.lower() for x in ["subestaciones", "eléctricas", "sed"]):
                     distritos_y_urbs.append((distrito, ["Zona general"]))
-                    print(f"Encontrado (simple): {distrito} -> ['Zona general']")
+                    #print(f"Encontrado (simple): {distrito} -> ['Zona general']")
 
     if not distritos_y_urbs:
         print(f"No se pudo extraer distrito/urbanización de: {texto_zonas}")
@@ -111,7 +111,7 @@ def obtener_coordenadas(urbanizacion, distrito):
             else:
                 return {"latitude": "No disponible", "longitude": "No disponible"}
     except Exception as e:
-        print(f"Error al obtener coordenadas para {direccion}: {e}")
+        #print(f"Error al obtener coordenadas para {direccion}: {e}")
         return {"latitude": "No disponible", "longitude": "No disponible"}
 
 def transformar_datos(datos_corte):
@@ -120,8 +120,12 @@ def transformar_datos(datos_corte):
     descripcion = detalles.get('Descripción', 'Sin descripción')
     start_time = detalles.get('Hora de inicio', '')
     end_time = detalles.get('Hora de finalización', '')
-    type_id = datos_corte.get('titulo', 'Sin tipo')  # Usar 'titulo' en lugar de 'Título'
+    type_id_original = detalles.get('Título', 'Sin tipo')  # Usar 'titulo' en lugar de 'Título'
     url = datos_corte['url']
+
+    contiene_suspendido = "SUSPENDIDO" in type_id_original.upper()
+
+    type_id = type_id_original.upper().replace("SUSPENDIDO", "").strip().rstrip('.')
     
     # Extraer distritos y urbanizaciones
     distritos_y_urbanizaciones = extraer_distrito_y_urbanizaciones(descripcion)
@@ -138,7 +142,7 @@ def transformar_datos(datos_corte):
                     "latitude": coords["latitude"]
                 })
     else:
-        print(f"No se encontraron distritos/urbanizaciones para: {descripcion}")
+        #print(f"No se encontraron distritos/urbanizaciones para: {descripcion}")
         addresses.append({
             "address": "Zona no especificada",
             "longitude": "No disponible",
@@ -150,12 +154,13 @@ def transformar_datos(datos_corte):
         "end_time": end_time,
         "description": descripcion.replace('\r\n', ' ').strip(),
         "type_id": type_id,
+        "suspendido": 1 if contiene_suspendido else 0,  # <- columna nueva
         "addresses": addresses,
         "url": url
     }
 
 async def obtener_cortes(session: AsyncSession):
-    start_time = time.time()  
+    #start_time = time.time()  
     response = requests.get(url_base, timeout=10)
     resultado = []
 
@@ -194,11 +199,12 @@ async def obtener_cortes(session: AsyncSession):
 
 
     for dato in resultado:  # Asegúrate que `datos_scrapeados` exista
-        corte = CorteEnergia(
+        corte = IncIncident(
             start_time = dato["start_time"],
             end_time = dato["end_time"],
             description = dato["description"],
             type_id = dato["type_id"],
+            suspendido = dato["suspendido"],
             addresses = dato["addresses"],
             url = dato["url"]
         )
