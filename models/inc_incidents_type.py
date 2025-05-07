@@ -1,5 +1,5 @@
 from sqlmodel import SQLModel, Field
-from typing import Optional
+from typing import List, Optional
 from datetime import datetime
 
 class IncIncidentType(SQLModel, table=True):
