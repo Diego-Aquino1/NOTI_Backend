@@ -1,43 +1,40 @@
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, Request
+import uvicorn
 
-from routers.geo_location import api_geo_location
-from routers.res_users import api_res_users
+# Importar routers
+from routers.geo_location.api_geo_location import router as geo_location_router
+from routers.res_users.api_res_users import router as user_router
 
 from database import get_session
-from contextlib import asynccontextmanager
-from utilities.estructura_data import obtener_cortes  # Reemplaza esto con la ruta real donde está tu función
-import asyncio
 
+# Crear la aplicación FastAPI
 app = FastAPI()
 
-app.include_router(api_res_users.router)
-app.include_router(api_geo_location.router)
-
-origins = ['*']
-
+# Configuración de CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins= origins,
+    # allow_origins= origins,
+    allow_origins=["*"],
     allow_credentials= True,
     allow_methods= ["*"],
     allow_headers= ["*"],
 )
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+# Registrar routers con prefijos para organizar las rutas
+app.include_router(user_router)  
+app.include_router(geo_location_router)  
 
+# Ruta principal
+@app.get("/")
+def root():
+    return {"message": "API funcionando correctamente"}
+
+# Ruta de prueba
 @app.get("/test")
 async def testing():
     return {"hola": "Si corre"}
 
-# Web scraping y guardado en PostgreSQL al iniciar el servidor
-@app.on_event("startup")
-async def startup_event():
-    async for session in get_session():
-        try:
-            await obtener_cortes(session)
-            print("✅ Web scraping completado y datos almacenados.")
-        except Exception as e:
-            print(f"❌ Error durante web scraping al iniciar: {e}")
+# Ejecutar el servidor solo si este archivo es el punto de entrada
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

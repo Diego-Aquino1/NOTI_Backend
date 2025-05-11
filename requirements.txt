@@ -25,6 +25,7 @@ asyncpg>=0.27.0
 starlette==0.37.2
 typing_extensions==4.12.2
 uvicorn==0.34.0
+#fastapi google-auth google-auth-oauthlib google-auth-httplib2 google-auth jwt
 requests
 beautifulsoup4
 googlemaps
