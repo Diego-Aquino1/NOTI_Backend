@@ -1,4 +1,4 @@
-from sqlmodel import Session, create_engine
+from sqlmodel import SQLModel
 from utilities.env import DB_HOST, DB_NAME, DB_PASSWORD, DB_USER
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
