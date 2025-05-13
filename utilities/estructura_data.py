@@ -150,6 +150,7 @@ def transformar_datos(datos_corte):
         })
     
     return {
+        "title": datos_corte['titulo'],
         "start_time": start_time,
         "end_time": end_time,
         "description": descripcion.replace('\r\n', ' ').strip(),
@@ -200,6 +201,7 @@ async def obtener_cortes(session: AsyncSession):
 
     for dato in resultado:  # Asegúrate que `datos_scrapeados` exista
         corte = IncIncident(
+            title = dato["title"],
             start_time = dato["start_time"],
             end_time = dato["end_time"],
             description = dato["description"],

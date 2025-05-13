@@ -36,6 +36,7 @@ CREATE TABLE inc_incident_types (
 
 CREATE TABLE inc_incidents (
     id SERIAL PRIMARY KEY,
+    title TEXT,
     start_time  TEXT,
     end_time TEXT,
     description TEXT,

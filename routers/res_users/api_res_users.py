@@ -33,7 +33,6 @@ def logout(token: str):
     BLACKLIST_TOKENS.add(token)
     return {"message": "Sesión cerrada correctamente"}
 
-
 @router.get("/all", status_code = 200)
 # def get_roles(auth = Auth()):
 def get_roles():
