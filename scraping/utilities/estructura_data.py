@@ -151,7 +151,6 @@ def transformar_datos(datos_corte):
         })
     
     return {
-        "title": datos_corte['titulo'],
         "start_time": start_time,
         "end_time": end_time,
         "description": descripcion.replace('\r\n', ' ').strip(),
@@ -228,26 +227,7 @@ async def obtener_cortes(session: AsyncSession):
     else:
         print(f"Error al acceder a la página. Código de estado: {response.status_code}")
 
-    #end_time = time.time()  
-    #execution_time = end_time - start_time  
-    #print(f"Tiempo de ejecución: {execution_time} segundos")
-    #return resultado
-
-
-    for dato in resultado:  # Asegúrate que `datos_scrapeados` exista
-        corte = IncIncident(
-            title = dato["title"],
-            start_time = dato["start_time"],
-            end_time = dato["end_time"],
-            description = dato["description"],
-            type_id = dato["type_id"],
-            suspendido = dato["suspendido"],
-            addresses = dato["addresses"],
-            url = dato["url"]
-        )
-        session.add(corte)
-
-    await session.commit()
+    return resultado
 
 def guardar_en_json(data, filename='resultados_webscraping_test2.json'):
     try:
@@ -263,7 +243,7 @@ if __name__ == "__main__":
     from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession as AsyncSessionBase
 
     # Configura la base de datos
-    DATABASE_URL = "postgresql+asyncpg://postgres:123456@localhost:5432/noti"
+    DATABASE_URL = "postgresql+asyncpg://postgres:123456@localhost:5432/noti_test"
     engine = create_async_engine(DATABASE_URL, echo=True)
 
     async def init_db():
