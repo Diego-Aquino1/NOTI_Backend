@@ -1,4 +1,4 @@
-from fastapi import Request, APIRouter
+from fastapi import Query, APIRouter
 from sqlalchemy.orm import Session
 from database import get_session
 from fastapi.encoders import jsonable_encoder
@@ -7,6 +7,9 @@ from routers.geo_location.controllers.massive_find_locations_controller import M
 from routers.geo_location.controllers.find_location_coordinate import FindLocationCoordinateController
 from routers.geo_location.controllers.find_incident import FindIncidentController
 from routers.geo_location.schemas.location_schemas import LocationRequest, LocationCoordinateRequest
+from routers.geo_location.schemas.location_schemas import LocationRequest
+from routers.geo_location.controllers.find_incident_for_id import GetIncidentByIdController
+
 
 router = APIRouter(prefix="/location")
 
@@ -29,3 +32,8 @@ def find_by_coordinates(data: LocationCoordinateRequest):
 def find_incidents_by_coordinates(data: LocationCoordinateRequest):
     controller = FindIncidentController()
     return jsonable_encoder(controller.run(data))
+
+@router.get("/incident", status_code=200)
+def get_incident_by_id(id_incident: int = Query(..., description="ID del incidente")):
+    controller = GetIncidentByIdController()
+    return jsonable_encoder(controller.run(id_incident))

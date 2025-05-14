@@ -151,6 +151,7 @@ def transformar_datos(datos_corte):
         })
     
     return {
+        "title": datos_corte['titulo'],
         "start_time": start_time,
         "end_time": end_time,
         "description": descripcion.replace('\r\n', ' ').strip(),
@@ -227,7 +228,26 @@ async def obtener_cortes(session: AsyncSession):
     else:
         print(f"Error al acceder a la página. Código de estado: {response.status_code}")
 
-    return resultado
+    #end_time = time.time()  
+    #execution_time = end_time - start_time  
+    #print(f"Tiempo de ejecución: {execution_time} segundos")
+    #return resultado
+
+
+    for dato in resultado:  # Asegúrate que `datos_scrapeados` exista
+        corte = IncIncident(
+            title = dato["title"],
+            start_time = dato["start_time"],
+            end_time = dato["end_time"],
+            description = dato["description"],
+            type_id = dato["type_id"],
+            suspendido = dato["suspendido"],
+            addresses = dato["addresses"],
+            url = dato["url"]
+        )
+        session.add(corte)
+
+    await session.commit()
 
 def guardar_en_json(data, filename='resultados_webscraping_test2.json'):
     try:

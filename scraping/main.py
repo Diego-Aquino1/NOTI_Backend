@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_session
 from utilities.estructura_data import obtener_cortes # type: ignore
 
+
 app = FastAPI()
 
 # CORS settings (ajusta si necesitas restringir orígenes)
