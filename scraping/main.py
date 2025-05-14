@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_session
-from utilities.estructura_data import obtener_cortes
+from utilities.estructura_data import obtener_cortes # type: ignore
 
 app = FastAPI()
 
