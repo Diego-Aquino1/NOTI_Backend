@@ -243,7 +243,7 @@ if __name__ == "__main__":
     from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession as AsyncSessionBase
 
     # Configura la base de datos
-    DATABASE_URL = "postgresql+asyncpg://postgres:123456@localhost:5432/noti_test"
+    DATABASE_URL = "postgresql+asyncpg://postgres:root@localhost:5432/noti05"
     engine = create_async_engine(DATABASE_URL, echo=True)
 
     async def init_db():

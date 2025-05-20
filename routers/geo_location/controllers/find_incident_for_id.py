@@ -17,8 +17,8 @@ class GetIncidentByIdController:
 
         return {
             #"titulo": incident.titulo,
-            "start_time": incident.start_time.format() if incident.start_time else None,
-            "end_time": incident.end_time.format() if incident.end_time else None,
+            "start_time": incident.start_time.isoformat() if incident.start_time else None,
+            "end_time": incident.end_time.isoformat() if incident.end_time else None,
             "description": incident.description,
             "type_id": incident.type_id,
             "suspendido": incident.suspendido,
