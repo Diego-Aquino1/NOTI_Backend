@@ -77,28 +77,66 @@ def extraer_distrito_y_urbanizaciones(descripcion):
     return distritos_y_urbs
 
 def obtener_coordenadas(urbanizacion, distrito):
-    direccion = f"{urbanizacion}, {distrito}, Perú"
+    direccion = f"{urbanizacion}, {distrito}, Lima, Perú"
     try:
         geocode_result = gmaps.geocode(direccion)
         if geocode_result:
             location = geocode_result[0]['geometry']['location']
+            address_components = geocode_result[0].get('address_components', [])
+            
+            # Extraer city, region, postal_code y address
+            city = distrito
+            region = None
+            postal_code = None
+            formatted_address = geocode_result[0].get('formatted_address', direccion)
+            name = urbanizacion if urbanizacion != "Zona general" else f"{distrito}, Lima"
+
+            for component in address_components:
+                if 'administrative_area_level_1' in component['types']:
+                    region = component['long_name']
+                if 'locality' in component['types'] and component['long_name'].lower() != distrito.lower():
+                    city = component['long_name']
+                if 'postal_code' in component['types']:
+                    postal_code = component['long_name']
+
             return {
                 "latitude": location['lat'],
                 "longitude": location['lng'],
-                "address": direccion,
-                "city": distrito,
-                "country": "Perú"
+                "address": formatted_address,
+                "city": city,
+                "region": region if region else "Lima",
+                "country": "Perú",
+                "name": name,
+                "postal_code": postal_code
             }
         else:
-            geocode_result = gmaps.geocode(f"{distrito}, Perú")
+            # Fallback al distrito
+            geocode_result = gmaps.geocode(f"{distrito}, Lima, Perú")
             if geocode_result:
                 location = geocode_result[0]['geometry']['location']
+                address_components = geocode_result[0].get('address_components', [])
+                
+                city = distrito
+                region = None
+                postal_code = None
+                formatted_address = geocode_result[0].get('formatted_address', f"{distrito}, Lima, Perú")
+                name = f"{distrito}, Lima"
+
+                for component in address_components:
+                    if 'administrative_area_level_1' in component['types']:
+                        region = component['long_name']
+                    if 'postal_code' in component['types']:
+                        postal_code = component['long_name']
+
                 return {
                     "latitude": location['lat'],
                     "longitude": location['lng'],
-                    "address": f"{distrito}, Perú",
-                    "city": distrito,
-                    "country": "Perú"
+                    "address": formatted_address,
+                    "city": city,
+                    "region": region if region else "Lima",
+                    "country": "Perú",
+                    "name": name,
+                    "postal_code": postal_code
                 }
             else:
                 return None
@@ -113,16 +151,17 @@ def transformar_datos(datos_corte):
     type_id_original = datos_corte.get('titulo', 'Sin tipo')
     url = datos_corte['url']
 
+    # Extraer título limpio
     contiene_suspendido = "SUSPENDIDO" in type_id_original.upper()
-    
-    # Extraer solo el tipo de incidente (después de las fechas)
     type_id_match = re.search(r'\d{2}/\d{2}/\d{4}\s+\d{1,2}:\d{2}\s*-\s*\d{2}/\d{2}/\d{4}\s+\d{1,2}:\d{2}\s+(.+)', type_id_original, re.IGNORECASE)
     if type_id_match:
-        type_id = type_id_match.group(1).upper().replace("SUSPENDIDO", "").strip().rstrip('.')
+        title = type_id_match.group(1).upper().replace("SUSPENDIDO", "").strip().rstrip('.')
+        type_id = title
     else:
-        type_id = type_id_original.upper().replace("SUSPENDIDO", "").strip().rstrip('.')
+        title = type_id_original.upper().replace("SUSPENDIDO", "").strip().rstrip('.')
+        type_id = title
 
-    # Convertir fechas a datetime (ajusta el formato según los datos)
+    # Convertir fechas a datetime
     try:
         start_time = datetime.strptime(start_time, '%d/%m/%Y %H:%M') if start_time else datetime.now()
         end_time = datetime.strptime(end_time, '%d/%m/%Y %H:%M') if end_time else datetime.now()
@@ -133,7 +172,7 @@ def transformar_datos(datos_corte):
     # Extraer distritos y urbanizaciones
     distritos_y_urbanizaciones = extraer_distrito_y_urbanizaciones(descripcion)
     
-    # Obtener coordenadas para cada urbanización
+    # Obtener coordenadas
     locations = []
     if distritos_y_urbanizaciones:
         for distrito, urbanizaciones in distritos_y_urbanizaciones:
@@ -147,7 +186,10 @@ def transformar_datos(datos_corte):
             "longitude": 0.0,
             "address": "Zona no especificada",
             "city": None,
-            "country": None
+            "region": None,
+            "country": None,
+            "name": "Zona no especificada",
+            "postal_code": None
         })
     
     return {
@@ -158,7 +200,8 @@ def transformar_datos(datos_corte):
         "type_id": type_id,
         "suspendido": contiene_suspendido,
         "locations": locations,
-        "url": url
+        "url": url,
+        "title": title
     }
 
 async def obtener_cortes(session: AsyncSession):
@@ -195,7 +238,8 @@ async def obtener_cortes(session: AsyncSession):
                         description=transformed["description"],
                         type_id=transformed["type_id"],
                         suspendido=transformed["suspendido"],
-                        url=transformed["url"]
+                        url=transformed["url"],
+                        title=transformed["title"]
                     )
                     session.add(incident)
                     await session.commit()
@@ -205,12 +249,14 @@ async def obtener_cortes(session: AsyncSession):
                     for loc in transformed["locations"]:
                         if loc["latitude"] != 0.0 and loc["longitude"] != 0.0:
                             location = GeoLocation(
-                                name=loc["address"],
+                                name=loc["name"],
                                 latitude=loc["latitude"],
                                 longitude=loc["longitude"],
                                 city=loc["city"],
+                                region=loc["region"],
                                 country=loc["country"],
-                                address=loc["address"]
+                                address=loc["address"],
+                                postal_code=loc["postal_code"]
                             )
                             session.add(location)
                             await session.commit()
@@ -263,7 +309,11 @@ if __name__ == "__main__":
     from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession as AsyncSessionBase
 
     # Configura la base de datos
+<<<<<<< Updated upstream
     DATABASE_URL = "postgresql+asyncpg://postgres:123456@localhost:5432/noti"
+=======
+    DATABASE_URL = "postgresql+asyncpg://postgres:123456@localhost:5432/noti_test_2"
+>>>>>>> Stashed changes
     engine = create_async_engine(DATABASE_URL, echo=True)
 
     async def init_db():
