@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_session
 from utilities.estructura_data import obtener_cortes # type: ignore
+#from apscheduler.schedulers.asyncio import AsyncIOScheduler
+#from apscheduler.triggers.cron import CronTrigger
 
 
 app = FastAPI()
