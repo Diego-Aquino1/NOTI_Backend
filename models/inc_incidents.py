@@ -11,7 +11,7 @@ class IncIncident(SQLModel, table=True):
     start_time: datetime = Field(nullable=False)
     end_time: datetime = Field(nullable=False)
     description: Optional[str] = Field(default=None)
-    type_id: int = Field(foreign_key="inc_incident_types.id", nullable=False)
+    type_id: str = Field(max_length=100, nullable=False)  # Ajustado a max_length=100 
     suspendido: bool = Field(default=False)
     url: str = Field(nullable=False)
     
@@ -24,5 +24,6 @@ class IncIncidentAddress(SQLModel, table=True):
     incident_id: int = Field(foreign_key="inc_incidents.id", nullable=False)
     location_id: int = Field(foreign_key="geo_locations.id", nullable=False)
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
     incident: IncIncident = Relationship(back_populates="addresses")
     location: GeoLocation = Relationship()

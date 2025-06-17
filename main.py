@@ -46,7 +46,7 @@ async def startup_event():
 
     # Verifica si hoy es sábado a las 21:00 en Lima
     lima_now = datetime.now(pytz.timezone("America/Lima"))
-    if lima_now.weekday() == 1 and lima_now.hour == 10:  # 0 = lunes,  5 =  sabado
+    if lima_now.weekday() == 1 and lima_now.hour == 22 and lima_now.minute == 4:  # 0 = lunes,  5 =  sabado
         print("📅 Es sábado 21:00, ejecutando scraping ahora...")
         await run_scraping()
 

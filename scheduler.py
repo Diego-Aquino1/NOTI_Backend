@@ -9,7 +9,7 @@ def start_scheduler():
     scheduler = BackgroundScheduler(timezone = pytz.timezone("America/Lima"))
 
     @scheduler.scheduled_job(
-        CronTrigger(day_of_week='tue', hour=10, minute=0)  # Sábados = sat; mon, tue, wed, thu, fri, sat, sun
+        CronTrigger(day_of_week='tue', hour=22, minute=4)  # Sábados = sat; mon, tue, wed, thu, fri, sat, sun
     )
     def scheduled_scrape():
         print("⏳ Ejecutando scraping programado de cortes de luz...")

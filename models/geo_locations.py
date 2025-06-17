@@ -15,4 +15,3 @@ class GeoLocation(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.now)
     country: Optional[str] = Field(default = None, max_length = 100)
     postal_code: Optional[str] = Field(default = None, max_length = 100)
-

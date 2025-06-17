@@ -6,6 +6,7 @@ from routers.geo_location.schemas.location_schemas import LocationCoordinateRequ
 from models.geo_locations import GeoLocation
 from utilities.incident import haversine
 
+
 class FindIncidentController:
     def __init__(self) -> None:
         self.session: Session = get_session()
