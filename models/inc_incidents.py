@@ -7,15 +7,11 @@ class IncIncident(SQLModel, table=True):
     __tablename__ = "inc_incidents"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    title: Optional[str] = Field(default=None, max_length=255)  # el campo title
+    #title: Optional[str] = Field(default=None)
     start_time: datetime = Field(nullable=False)
     end_time: datetime = Field(nullable=False)
     description: Optional[str] = Field(default=None)
-<<<<<<< Updated upstream
-    type_id: str = Field(max_length=50, nullable=False)
-=======
-    type_id: str = Field(max_length=100, nullable=False)
->>>>>>> Stashed changes
+    type_id: str = Field(max_length=100, nullable=False)  # Ajustado a max_length=100 
     suspendido: bool = Field(default=False)
     url: str = Field(nullable=False)
     addresses: List["IncIncidentAddress"] = Relationship(back_populates="incident")
@@ -30,11 +26,3 @@ class IncIncidentAddress(SQLModel, table=True):
 
     incident: IncIncident = Relationship(back_populates="addresses")
     location: GeoLocation = Relationship()
-    #title: Optional[str] = Field(default=None)
-    start_time: str = Field(nullable=False)
-    end_time: str = Field(nullable=False)
-    description: Optional[str] = Field(default=None)
-    type_id: str = Field(nullable=False)
-    suspendido: bool = Field(default=False)
-    addresses: List[str]  = Field(sa_column = Column(JSON))  # Esto se guardará como JSON en PostgreSQL
-    url: str

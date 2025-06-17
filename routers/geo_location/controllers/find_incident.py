@@ -62,6 +62,8 @@ from database import get_session
 from fastapi.encoders import jsonable_encoder
 from routers.geo_location.schemas.location_schemas import LocationCoordinateRequest
 from models.geo_locations import GeoLocation
+from utilities.incident import haversine
+
 
 class FindIncidentController:
     def __init__(self) -> None:
@@ -133,7 +135,7 @@ class FindIncidentController:
         # Filtra las ubicaciones dentro de un radio de 5 km usando la fórmula de Haversine
         result = []
         for location in locations:
-            distance = self.haversine(
+            distance = haversine(
                 data.latitude, data.longitude, location.latitude, location.longitude
             )
             if distance <= 5.0:  # Radio de 5 km
