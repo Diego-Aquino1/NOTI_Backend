@@ -133,16 +133,23 @@ class FindIncidentController:
         ).all()
 
         # Filtra las ubicaciones dentro de un radio de 5 km usando la fórmula de Haversine
-        result = []
+        result: List[GeoLocation] = []
         for location in locations:
-            distance = haversine(
-                data.latitude, data.longitude, location.latitude, location.longitude
-            )
+            distance = haversine(data.latitude, data.longitude, location.latitude, location.longitude)
             if distance <= 5.0:  # Radio de 5 km
-                result.append({
-                    "id": location.id,
-                    "latitude": location.latitude,
-                    "longitude": location.longitude
-                })
+                # Creamos un objeto GeoLocation consistente
+                location_data = GeoLocation(
+                    id = location.id,
+                    name = location.name,
+                    address = location.address,
+                    latitude = location.latitude,
+                    longitude = location.longitude,
+                    city = location.city,
+                    region = location.region,
+                    country = location.country,
+                    postal_code = location.postal_code,
+                    created_at = location.created_at
+                )
+                result.append(location_data)
 
         return result
