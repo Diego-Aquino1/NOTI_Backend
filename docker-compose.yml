@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: noti_postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-noti_db}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./SQL:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - noti_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-noti_db}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Backend API Service
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: noti_backend
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=${DB_NAME:-noti_db}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - noti_network
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
+  # Scraping Service
+  scraping:
+    build:
+      context: .
+      dockerfile: Dockerfile.scraping
+    container_name: noti_scraping
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=${DB_NAME:-noti_db}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - SCRAPING_HOST=0.0.0.0
+      - SCRAPING_PORT=8001
+    ports:
+      - "8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - noti_network
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  noti_network:
+    driver: bridge
